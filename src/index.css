@@ -1,0 +1,54 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
+
+/* Your custom classes */
+.glass-card {
+  @apply backdrop-blur-lg bg-white/10 dark:bg-gray-800/10 border border-white/20 dark:border-gray-700/20;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-portal-blue via-portal-purple to-portal-pink bg-clip-text text-transparent;
+}
+
+.portal-shadow {
+  @apply shadow-[0_8px_32px_rgba(99,102,241,0.15)] dark:shadow-[0_8px_32px_rgba(99,102,241,0.25)];
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gradient-to-b from-portal-blue to-portal-purple rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply from-portal-purple to-portal-pink;
+}
+
+::selection {
+  @apply bg-portal-blue/30 text-white;
+}
+
+* {
+  @apply transition-colors duration-200;
+}
