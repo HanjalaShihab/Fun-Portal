@@ -10,6 +10,17 @@ import {
   FaChevronRight, FaRegMoon, FaRegSun
 } from 'react-icons/fa';
 
+const HolographicEffect = ({ children }) => (
+  <div className="relative group">
+    {/* Holographic overlay */}
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-1000 
+                    animate-shimmer" />
+    {children}
+  </div>
+);
+
+
 const Dashboard = () => {
   const [animatedEmoji, setAnimatedEmoji] = useState('🚀');
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -801,5 +812,6 @@ const Dashboard = () => {
     </div>
   );
 };
+
 
 export default Dashboard;
