@@ -8,8 +8,6 @@ import Layout from './components/layout/Layout';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import './index.css'; // Changed from ./styles/globals.css
 
-// Rest of the code remains the same...
-
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
 const MemeGenerator = lazy(() => import('./components/MemeGenerator/MemeGenerator'));

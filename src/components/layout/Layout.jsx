@@ -6,7 +6,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
 import { 
   FaHome, FaSun, FaMoon, FaUser, 
-  FaCog, FaSignOutAlt, FaTrophy
+  FaCog, FaSignOutAlt, FaTrophy,
+  FaMagic // Added for AI Art Studio
 } from 'react-icons/fa';
 
 const Layout = ({ children }) => {
@@ -133,7 +134,7 @@ const Layout = ({ children }) => {
       {/* Mobile Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="flex justify-around items-center h-16">
-          {navItems.slice(0, 4).map((item) => {
+          {navItems.slice(0, 5).map((item) => { // Changed from 4 to 5
             const Icon = item.icon;
             return (
               <Link

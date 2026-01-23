@@ -1,49 +1,23 @@
 // src/components/Dashboard/Dashboard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { 
-  FaFire, FaStar, FaTrophy, FaUsers, FaChartLine, 
-  FaHeart, FaClock, FaCrown, FaBolt, FaMagic,
-  FaPlay, FaPause, FaMusic, FaGamepad, FaSmile,
-  FaRandom, FaPalette, FaRobot, FaRocket
+import {
+  FaRocket, FaGamepad, FaMusic, FaSmile,
+  FaPalette, FaPuzzlePiece, FaAtom, FaDice,
+  FaStar, FaBolt, FaFire, FaMagic,
+  FaCompass, FaGlobe, FaUsers, FaHeart,
+  FaChevronRight, FaRegMoon, FaRegSun
 } from 'react-icons/fa';
 
 const Dashboard = () => {
-  const [userStats, setUserStats] = useState({
-    points: 1250,
-    level: 5,
-    streak: 7,
-    favorites: 12,
-    timeSpent: 45, // minutes
-  });
-
-  const [recentActivity, setRecentActivity] = useState([
-    { id: 1, type: 'meme', action: 'Created', title: 'Dank Meme', time: '2 min ago', points: 25 },
-    { id: 2, type: 'chat', action: 'Message', title: 'Emoji Chat', time: '15 min ago', points: 10 },
-    { id: 3, type: 'music', action: 'Listened', title: 'Ambient Chill', time: '30 min ago', points: 15 },
-    { id: 4, type: 'puzzle', action: 'Solved', title: 'Logic Puzzle', time: '1 hour ago', points: 50 },
-    { id: 5, type: 'fun', action: 'Viewed', title: 'Random Fact', time: '2 hours ago', points: 5 },
-  ]);
-
-  const [topUsers, setTopUsers] = useState([
-    { id: 1, name: 'Alex', points: 3420, avatar: '👑', rank: 1 },
-    { id: 2, name: 'Sam', points: 2980, avatar: '🌟', rank: 2 },
-    { id: 3, name: 'Jordan', points: 2560, avatar: '⚡', rank: 3 },
-    { id: 4, name: 'Taylor', points: 2340, avatar: '🎯', rank: 4 },
-    { id: 5, name: 'Casey', points: 2100, avatar: '🔥', rank: 5 },
-  ]);
-
-  const [featuredContent, setFeaturedContent] = useState([
-    { id: 1, type: 'meme', title: 'Meme of the Day', emoji: '🤣', views: 1240 },
-    { id: 2, type: 'trivia', title: 'Daily Trivia', emoji: '🧠', views: 890 },
-    { id: 3, type: 'quote', title: 'Quote Inspiration', emoji: '💭', views: 1560 },
-  ]);
-
-  const [timeOfDay, setTimeOfDay] = useState('morning');
-  const [greeting, setGreeting] = useState('');
-  const [animatedEmoji, setAnimatedEmoji] = useState('🎮');
-  const [backgroundParticles, setBackgroundParticles] = useState([]);
+  const [animatedEmoji, setAnimatedEmoji] = useState('🚀');
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [theme] = useState('dark');
+  const [stars, setStars] = useState([]);
+  const [comets, setComets] = useState([]);
+  const containerRef = useRef(null);
 
   const modules = [
     {
@@ -51,632 +25,779 @@ const Dashboard = () => {
       title: 'Meme Generator',
       description: 'Create hilarious memes with drag & drop',
       emoji: '🎭',
-      color: 'from-blue-500 to-purple-600',
-      gradient: 'bg-gradient-to-br from-blue-500 to-purple-600',
+      color: 'from-blue-500/90 to-purple-600/90',
+      bgColor: 'rgba(59, 130, 246, 0.1)',
+      iconColor: 'text-blue-300',
       path: '/meme-generator',
-      stats: { users: 1240, rating: 4.8 },
       icon: FaPalette,
-      featured: true,
+      features: ['Drag & Drop', '150+ Templates', 'Instant Share'],
+      popular: true,
+      glow: 'blue',
     },
     {
       id: 2,
       title: 'Music Visualizer',
-      description: 'Visualize your music in real-time',
+      description: 'Visualize music with amazing effects',
       emoji: '🎵',
-      color: 'from-purple-500 to-pink-600',
-      gradient: 'bg-gradient-to-br from-purple-500 to-pink-600',
+      color: 'from-purple-500/90 to-pink-600/90',
+      bgColor: 'rgba(168, 85, 247, 0.1)',
+      iconColor: 'text-purple-300',
       path: '/music-visualizer',
-      stats: { users: 980, rating: 4.9 },
       icon: FaMusic,
-      featured: true,
+      features: ['Real-time', '3D Effects', 'Custom Colors'],
+      glow: 'purple',
     },
     {
       id: 3,
-      title: 'Emoji Chat',
-      description: 'Chat using only emojis & reactions',
-      emoji: '😄',
-      color: 'from-pink-500 to-yellow-500',
-      gradient: 'bg-gradient-to-br from-pink-500 to-yellow-500',
-      path: '/emoji-chat',
-      stats: { users: 2560, rating: 4.7 },
-      icon: FaSmile,
-      featured: true,
+      title: 'Puzzle Room',
+      description: 'Challenge your brain with puzzles',
+      emoji: '🧩',
+      color: 'from-yellow-500/90 to-green-500/90',
+      bgColor: 'rgba(234, 179, 8, 0.1)',
+      iconColor: 'text-yellow-300',
+      path: '/puzzle-room',
+      icon: FaPuzzlePiece,
+      features: ['Brain Games', 'Daily Challenges', 'Multiplayer'],
+      glow: 'yellow',
     },
     {
       id: 4,
-      title: 'Puzzle Room',
-      description: 'Solve challenging puzzles & riddles',
-      emoji: '🧩',
-      color: 'from-yellow-500 to-green-500',
-      gradient: 'bg-gradient-to-br from-yellow-500 to-green-500',
-      path: '/puzzle-room',
-      stats: { users: 870, rating: 4.6 },
-      icon: FaGamepad,
-      featured: false,
+      title: 'Physics Sandbox',
+      description: 'Play with gravity and simulations',
+      emoji: '⚛️',
+      color: 'from-green-500/90 to-cyan-500/90',
+      bgColor: 'rgba(34, 197, 94, 0.1)',
+      iconColor: 'text-green-300',
+      path: '/physics-sandbox',
+      icon: FaAtom,
+      features: ['Interactive', 'Educational', 'Fun'],
+      new: true,
+      glow: 'green',
     },
     {
       id: 5,
-      title: 'Physics Sandbox',
-      description: 'Play with physics simulations',
-      emoji: '⚛️',
-      color: 'from-green-500 to-cyan-500',
-      gradient: 'bg-gradient-to-br from-green-500 to-cyan-500',
-      path: '/physics-sandbox',
-      stats: { users: 1120, rating: 4.8 },
-      icon: FaBolt,
-      featured: false,
+      title: 'Random Fun',
+      description: 'Discover random games & activities',
+      emoji: '🎲',
+      color: 'from-red-500/90 to-orange-500/90',
+      bgColor: 'rgba(239, 68, 68, 0.1)',
+      iconColor: 'text-red-300',
+      path: '/random-fun',
+      icon: FaDice,
+      features: ['Surprise', 'Quick Play', 'Endless'],
+      popular: true,
+      glow: 'red',
     },
     {
       id: 6,
-      title: 'Random Fun Factory',
-      description: 'Endless entertainment generator',
-      emoji: '🎲',
-      color: 'from-red-500 to-orange-500',
-      gradient: 'bg-gradient-to-br from-red-500 to-orange-500',
-      path: '/random-fun',
-      stats: { users: 1890, rating: 4.9 },
-      icon: FaRandom,
-      featured: true,
+      title: 'Emoji Chat',
+      description: 'Express yourself with emojis',
+      emoji: '😄',
+      color: 'from-pink-500/90 to-yellow-500/90',
+      bgColor: 'rgba(236, 72, 153, 0.1)',
+      iconColor: 'text-pink-300',
+      path: '/emoji-chat',
+      icon: FaSmile,
+      features: ['Social', 'Fun', 'Creative'],
+      glow: 'pink',
     },
     {
       id: 7,
-      title: 'AI Art Studio',
-      description: 'Generate AI-powered art & designs',
-      emoji: '🎨',
-      color: 'from-indigo-500 to-blue-500',
-      gradient: 'bg-gradient-to-br from-indigo-500 to-blue-500',
-      path: '/ai-art',
-      stats: { users: 2100, rating: 4.9 },
-      icon: FaMagic,
-      featured: true,
-      comingSoon: true,
-    },
-    {
-      id: 8,
-      title: 'Voice Assistant',
-      description: 'Interactive voice-based games',
-      emoji: '🤖',
-      color: 'from-gray-700 to-gray-900',
-      gradient: 'bg-gradient-to-br from-gray-700 to-gray-900',
-      path: '/voice-games',
-      stats: { users: 760, rating: 4.5 },
-      icon: FaRobot,
-      featured: false,
-      comingSoon: true,
-    },
-    {
-      id: 9,
       title: 'Space Explorer',
-      description: 'Explore the universe in 3D',
+      description: 'Journey through the cosmos in 3D',
       emoji: '🚀',
-      color: 'from-purple-700 to-pink-700',
-      gradient: 'bg-gradient-to-br from-purple-700 to-pink-700',
+      color: 'from-indigo-900/90 via-purple-800/90 to-blue-900/90',
+      bgColor: 'rgba(67, 56, 202, 0.1)',
+      iconColor: 'text-cyan-300',
       path: '/space-explorer',
-      stats: { users: 0, rating: 0 },
       icon: FaRocket,
-      featured: false,
+      features: ['3D Graphics', 'Educational', 'Immersive'],
       comingSoon: true,
+      glow: 'cyan',
     },
   ];
 
-  // Initialize time-based greetings
+  // Initialize space background
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      setTimeOfDay('morning');
-      setGreeting('Good Morning!');
-      setAnimatedEmoji('🌅');
-    } else if (hour < 17) {
-      setTimeOfDay('afternoon');
-      setGreeting('Good Afternoon!');
-      setAnimatedEmoji('☀️');
-    } else {
-      setTimeOfDay('evening');
-      setGreeting('Good Evening!');
-      setAnimatedEmoji('🌙');
-    }
-
-    // Create floating particles
-    const particles = Array.from({ length: 20 }).map((_, i) => ({
+    // Generate stars
+    const starsArray = Array.from({ length: 150 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      speed: Math.random() * 0.5 + 0.2,
+      size: Math.random() * 2 + 0.5,
+      opacity: Math.random() * 0.8 + 0.2,
+      speed: Math.random() * 0.3 + 0.1,
+      twinkleSpeed: Math.random() * 3 + 1,
     }));
-    setBackgroundParticles(particles);
+    setStars(starsArray);
 
-    // Animated emoji rotation
-    const emojis = ['🎮', '✨', '🎯', '🌟', '⚡', '🎪', '🎨', '🎭'];
-    let emojiIndex = 0;
-    const emojiInterval = setInterval(() => {
-      emojiIndex = (emojiIndex + 1) % emojis.length;
-      setAnimatedEmoji(emojis[emojiIndex]);
-    }, 3000);
+    // Generate comets
+    const cometsArray = Array.from({ length: 3 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+      speed: Math.random() * 2 + 1,
+      angle: Math.random() * Math.PI * 2,
+    }));
+    setComets(cometsArray);
 
-    return () => clearInterval(emojiInterval);
-  }, []);
-
-  // Background particles animation
-  useEffect(() => {
-    const animateParticles = () => {
-      setBackgroundParticles(prev => 
-        prev.map(p => ({
-          ...p,
-          y: (p.y + p.speed) % 100,
-          x: (p.x + Math.sin(p.y * 0.1) * 0.2) % 100,
-        }))
-      );
+    // Mouse move effect
+    const handleMouseMove = (e) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        setMousePosition({ x, y });
+      }
     };
 
-    const interval = setInterval(animateParticles, 50);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Emoji animation
+  useEffect(() => {
+    const emojis = ['🚀', '🎮', '✨', '🎲', '🎨', '🌟', '⚡', '🎯', '🌌', '🪐'];
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % emojis.length;
+      setAnimatedEmoji(emojis[index]);
+    }, 1200);
     return () => clearInterval(interval);
   }, []);
 
-  const getTimeBasedColor = () => {
-    switch (timeOfDay) {
-      case 'morning': return 'from-blue-400 via-cyan-400 to-emerald-400';
-      case 'afternoon': return 'from-yellow-400 via-orange-400 to-red-400';
-      case 'evening': return 'from-purple-600 via-pink-600 to-indigo-600';
-      default: return 'from-blue-500 via-purple-500 to-pink-500';
-    }
-  };
+  // Floating nebula particles
+  const [nebulaParticles, setNebulaParticles] = useState([]);
+  
+  useEffect(() => {
+    const particlesArray = Array.from({ length: 15 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 80 + 20,
+      opacity: Math.random() * 0.15 + 0.05,
+      color: `rgba(${Math.floor(Math.random() * 100) + 100}, 
+              ${Math.floor(Math.random() * 100) + 50}, 
+              ${Math.floor(Math.random() * 100) + 200}, `,
+      speedX: (Math.random() - 0.5) * 0.2,
+      speedY: (Math.random() - 0.5) * 0.2,
+    }));
+    setNebulaParticles(particlesArray);
+  }, []);
 
-  const quickActions = [
-    { icon: FaFire, label: 'Daily Challenge', color: 'from-orange-500 to-red-500', points: 100 },
-    { icon: FaStar, label: 'Rate App', color: 'from-yellow-500 to-amber-500', points: 50 },
-    { icon: FaHeart, label: 'Share with Friends', color: 'from-pink-500 to-rose-500', points: 75 },
-    { icon: FaTrophy, label: 'View Leaderboard', color: 'from-amber-500 to-yellow-500', points: 25 },
+  // Random quote generator
+  const quotes = [
+    "Creativity is intelligence having fun.",
+    "Play is the highest form of research.",
+    "The universe is full of magical things.",
+    "Adventure is out there!",
+    "Explore the impossible.",
+    "Fun is the spark of innovation.",
   ];
+  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
 
-  const statsCards = [
-    { icon: FaChartLine, label: 'Total Points', value: userStats.points, color: 'text-blue-500', change: '+125' },
-    { icon: FaCrown, label: 'Level', value: userStats.level, color: 'text-purple-500', change: '+2' },
-    { icon: FaFire, label: 'Day Streak', value: userStats.streak, color: 'text-orange-500', change: '🔥' },
-    { icon: FaClock, label: 'Time Spent', value: `${userStats.timeSpent}m`, color: 'text-green-500', change: '+15m' },
-    { icon: FaHeart, label: 'Favorites', value: userStats.favorites, color: 'text-pink-500', change: '+3' },
-    { icon: FaUsers, label: 'Active Users', value: '2.4K', color: 'text-cyan-500', change: '+240' },
-  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/50 to-purple-50/50 dark:from-gray-900 dark:via-gray-800/50 dark:to-purple-900/20 p-4 md:p-8 relative overflow-hidden">
-      {/* Animated Background Particles */}
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 md:p-8 relative overflow-hidden"
+    >
+      {/* Space Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {backgroundParticles.map(particle => (
+        {/* Stars */}
+        {stars.map(star => (
           <motion.div
-            key={particle.id}
-            className="absolute rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20"
+            key={`star-${star.id}`}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              opacity: star.opacity,
+            }}
+            animate={{
+              opacity: [star.opacity, star.opacity * 0.5, star.opacity],
+            }}
+            transition={{
+              duration: star.twinkleSpeed,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+          />
+        ))}
+
+        {/* Nebula Clouds */}
+        {nebulaParticles.map(particle => (
+          <motion.div
+            key={`nebula-${particle.id}`}
+            className="absolute rounded-full blur-3xl"
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
               width: `${particle.size}px`,
               height: `${particle.size}px`,
+              background: `radial-gradient(circle, ${particle.color}${particle.opacity}) 0%, transparent 70%)`,
             }}
             animate={{
-              opacity: [0.3, 0.7, 0.3],
-              scale: [1, 1.2, 1],
+              x: [0, particle.speedX * 100],
+              y: [0, particle.speedY * 100],
             }}
             transition={{
-              duration: 2 + Math.random() * 2,
+              duration: 20,
               repeat: Infinity,
+              repeatType: "reverse",
             }}
           />
         ))}
+
+        {/* Comets */}
+        {comets.map(comet => (
+          <motion.div
+            key={`comet-${comet.id}`}
+            className="absolute"
+            style={{
+              left: `${comet.x}%`,
+              top: `${comet.y}%`,
+            }}
+            animate={{
+              x: [0, window.innerWidth],
+              y: [0, window.innerHeight],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: comet.speed * 10,
+              repeat: Infinity,
+              repeatDelay: Math.random() * 10 + 5,
+            }}
+          >
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-sm" />
+          </motion.div>
+        ))}
+
+        {/* Mouse Follow Glow */}
+        <motion.div
+          className="absolute w-96 h-96 rounded-full blur-3xl pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
+            left: `${mousePosition.x - 50}%`,
+            top: `${mousePosition.y - 50}%`,
+          }}
+          animate={{
+            left: `${mousePosition.x - 50}%`,
+            top: `${mousePosition.y - 50}%`,
+          }}
+          transition={{ type: "spring", mass: 0.5, stiffness: 50 }}
+        />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header Section */}
+        {/* Theme Toggle */}
+        <motion.button
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="fixed top-6 right-6 z-50 p-3 rounded-2xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg border border-white/10 shadow-2xl"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          {theme === 'dark' ? (
+            <FaRegSun className="text-yellow-300 text-xl" />
+          ) : (
+            <FaRegMoon className="text-indigo-300 text-xl" />
+          )}
+        </motion.button>
+
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="mb-12"
+          transition={{ duration: 1, type: "spring" }}
+          className="text-center mb-16 pt-8"
         >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-            <div>
-              <motion.div 
-                className="flex items-center gap-4 mb-4"
-                animate={{ x: [0, 10, 0] }}
-                transition={{ repeat: Infinity, duration: 3 }}
+          {/* Animated Title with Gradient Flow */}
+          <div className="relative inline-block mb-8">
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 2, -2, 0]
+              }}
+              transition={{ 
+                duration: 4,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+              className="text-8xl mb-4 relative"
+            >
+              {animatedEmoji}
+              <motion.div
+                className="absolute inset-0 blur-xl"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="text-5xl"
-                >
-                  {animatedEmoji}
-                </motion.div>
-                <div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                    🎪 Fun Portal
-                  </h1>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
-                    {greeting} Ready for some fun?
-                  </p>
+                {animatedEmoji}
+              </motion.div>
+            </motion.div>
+            
+            <motion.div
+              className="absolute -inset-4 blur-3xl bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-pink-500/30 rounded-full"
+              animate={{
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+              }}
+            />
+          </div>
+          
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-5xl md:text-7xl font-bold mb-6 relative"
+          >
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient">
+              Welcome to FunPortal
+            </span>
+            <motion.div
+              className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full"
+              animate={{ width: ['0%', '100%', '0%'] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+          </motion.h1>
+
+          {/* Animated Quote */}
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={currentQuote}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+              className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto italic"
+            >
+              "{currentQuote}"
+            </motion.p>
+          </AnimatePresence>
+
+          {/* Interactive Stats */}
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {[
+              { value: '7+', label: 'Worlds', icon: '🌌', color: 'from-blue-500/30 to-cyan-500/30' },
+              { value: '∞', label: 'Possibilities', icon: '✨', color: 'from-purple-500/30 to-pink-500/30' },
+              { value: '100%', label: 'Free', icon: '🎯', color: 'from-pink-500/30 to-orange-500/30' },
+              { value: '24/7', label: 'Fun', icon: '⚡', color: 'from-yellow-500/30 to-green-500/30' },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 * index }}
+                whileHover={{ 
+                  scale: 1.1,
+                  y: -5,
+                  transition: { type: "spring", stiffness: 300 }
+                }}
+                className={`px-6 py-3 rounded-2xl bg-gradient-to-r ${stat.color} backdrop-blur-lg border border-white/10 relative overflow-hidden group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{stat.icon}</span>
+                  <div>
+                    <div className="text-white font-bold text-xl">{stat.value}</div>
+                    <div className="text-gray-300 text-sm">{stat.label}</div>
+                  </div>
                 </div>
               </motion.div>
-              
-              {/* User Stats Bar */}
-              <div className="flex flex-wrap gap-3 mt-6">
-                {statsCards.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg"
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Featured Modules with Parallax */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mb-20 relative"
+        >
+          {/* Section Header with Animation */}
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center mb-12"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <FaCompass className="text-cyan-400 text-4xl animate-pulse" />
+              <h2 className="text-4xl md:text-5xl font-bold text-center">
+                <span className="bg-gradient-to-r from-cyan-300 to-purple-300 bg-clip-text text-transparent">
+                  Explore Interactive Worlds
+                </span>
+              </h2>
+              <FaGlobe className="text-purple-400 text-4xl" />
+            </div>
+            <p className="text-gray-400 text-center max-w-2xl">
+              Dive into immersive experiences where creativity meets technology
+            </p>
+          </motion.div>
+
+          {/* Module Grid with Staggered Animation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {modules.map((module, index) => (
+              <motion.div
+                key={module.id}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  y: -10,
+                  transition: { type: "spring", stiffness: 300 }
+                }}
+                onHoverStart={() => setHoveredCard(module.id)}
+                onHoverEnd={() => setHoveredCard(null)}
+                className="relative group"
+              >
+                {/* Card Glow Effect */}
+                <div 
+                  className={`absolute -inset-0.5 rounded-3xl blur opacity-75 group-hover:opacity-100 transition duration-500 ${
+                    module.glow === 'blue' ? 'bg-gradient-to-r from-blue-500 to-purple-500' :
+                    module.glow === 'purple' ? 'bg-gradient-to-r from-purple-500 to-pink-500' :
+                    module.glow === 'yellow' ? 'bg-gradient-to-r from-yellow-500 to-green-500' :
+                    module.glow === 'green' ? 'bg-gradient-to-r from-green-500 to-cyan-500' :
+                    module.glow === 'red' ? 'bg-gradient-to-r from-red-500 to-orange-500' :
+                    module.glow === 'pink' ? 'bg-gradient-to-r from-pink-500 to-yellow-500' :
+                    'bg-gradient-to-r from-cyan-500 to-blue-500'
+                  }`}
+                />
+                
+                <Link to={module.path}>
+                  <div 
+                    className={`relative bg-gradient-to-br ${module.color} backdrop-blur-xl rounded-3xl p-8 text-white shadow-2xl h-full border border-white/20 overflow-hidden`}
+                    style={{ 
+                      background: `linear-gradient(135deg, ${module.bgColor}, rgba(0,0,0,0.3))`,
+                    }}
                   >
-                    <stat.icon className={`text-xl ${stat.color}`} />
-                    <div>
-                      <div className="font-bold text-lg">{stat.value}</div>
-                      <div className="text-xs text-gray-500">{stat.label}</div>
+                    
+                    {/* Animated Background Pattern */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0" style={{
+                        backgroundImage: `radial-gradient(circle at 20% 80%, ${module.iconColor.replace('text-', '')} 1px, transparent 1px)`,
+                        backgroundSize: '30px 30px',
+                      }} />
                     </div>
-                    <span className="text-xs font-bold text-green-500 ml-2">{stat.change}</span>
+
+                    {/* Badges with Animation */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                      {module.popular && (
+                        <motion.span 
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          whileHover={{ scale: 1.1 }}
+                          className="px-4 py-2 bg-gradient-to-r from-yellow-500/90 to-orange-500/90 text-xs font-bold rounded-full backdrop-blur-sm shadow-lg"
+                        >
+                          <span className="flex items-center gap-2">
+                            <FaFire className="animate-pulse" /> Popular
+                          </span>
+                        </motion.span>
+                      )}
+                      {module.new && (
+                        <motion.span 
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          whileHover={{ scale: 1.1 }}
+                          className="px-4 py-2 bg-gradient-to-r from-green-500/90 to-cyan-500/90 text-xs font-bold rounded-full backdrop-blur-sm shadow-lg"
+                        >
+                          <span className="flex items-center gap-2">
+                            <FaBolt className="animate-bounce" /> New
+                          </span>
+                        </motion.span>
+                      )}
+                      {module.comingSoon && (
+                        <motion.span 
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          whileHover={{ scale: 1.1 }}
+                          className="px-4 py-2 bg-gradient-to-r from-gray-700/90 to-gray-900/90 text-xs font-bold rounded-full backdrop-blur-sm shadow-lg border border-gray-600/50"
+                        >
+                          <span className="flex items-center gap-2">
+                            <FaRocket className="animate-bounce" /> Coming Soon
+                          </span>
+                        </motion.span>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="relative z-10">
+                      {/* Icon & Emoji with Animation */}
+                      <div className="flex items-start justify-between mb-8">
+                        <motion.div
+                          animate={hoveredCard === module.id ? { 
+                            scale: 1.2,
+                            rotate: [0, 10, -10, 0],
+                          } : { scale: 1 }}
+                          transition={{ duration: 0.3 }}
+                          className="text-6xl"
+                        >
+                          {module.emoji}
+                        </motion.div>
+                        <motion.div
+                          animate={hoveredCard === module.id ? { 
+                            scale: 1.3,
+                            rotate: 360,
+                          } : { scale: 1 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <module.icon className={`text-4xl ${module.iconColor} drop-shadow-lg`} />
+                        </motion.div>
+                      </div>
+
+                      {/* Title with Gradient Underline */}
+                      <h3 className="text-3xl font-bold mb-4">
+                        {module.title}
+                        <motion.div 
+                          className="h-1 bg-gradient-to-r from-white/50 to-transparent rounded-full mt-2"
+                          initial={{ width: 0 }}
+                          animate={{ width: hoveredCard === module.id ? '100%' : '50%' }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </h3>
+                      
+                      <p className="text-gray-200 mb-8 text-lg">{module.description}</p>
+
+                      {/* Features with Stagger Animation */}
+                      <div className="space-y-3 mb-10">
+                        {module.features.map((feature, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            whileHover={{ x: 5 }}
+                            className="flex items-center gap-3"
+                          >
+                            <motion.div
+                              animate={hoveredCard === module.id ? { 
+                                scale: [1, 1.2, 1],
+                              } : {}}
+                              transition={{ duration: 0.5, delay: idx * 0.1 }}
+                            >
+                              <FaStar className="text-yellow-400" />
+                            </motion.div>
+                            <span className="text-sm opacity-90">{feature}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Explore Button with Arrow Animation */}
+                      <motion.div
+                        className="flex items-center justify-between mt-auto pt-6 border-t border-white/20"
+                        animate={{ 
+                          x: hoveredCard === module.id ? [0, 5, 0] : 0
+                        }}
+                        transition={{ 
+                          duration: 1, 
+                          repeat: Infinity,
+                          repeatDelay: 0.5 
+                        }}
+                      >
+                        <span className="text-sm opacity-80 font-medium">Begin Adventure</span>
+                        <motion.div
+                          animate={hoveredCard === module.id ? { 
+                            x: [0, 10, 0],
+                          } : {}}
+                          transition={{ duration: 0.5, repeat: Infinity }}
+                          className="flex items-center gap-2 text-xl"
+                        >
+                          <span>→</span>
+                          <FaChevronRight className="text-lg" />
+                        </motion.div>
+                      </motion.div>
+                    </div>
+
+                    {/* Particle Effect on Hover */}
+                    {hoveredCard === module.id && (
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {[...Array(5)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 rounded-full bg-white"
+                            initial={{ 
+                              x: '50%', 
+                              y: '50%',
+                              opacity: 1,
+                              scale: 0 
+                            }}
+                            animate={{ 
+                              x: `${Math.random() * 100}%`,
+                              y: `${Math.random() * 100}%`,
+                              opacity: 0,
+                              scale: 1
+                            }}
+                            transition={{ duration: 0.8 }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Interactive Features Showcase */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-20"
+        >
+          <div className="bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20 rounded-3xl p-8 backdrop-blur-xl border border-white/10 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl" />
+            
+            <div className="text-center relative z-10">
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-4 mb-8 p-4 rounded-2xl bg-white/5 backdrop-blur-sm"
+              >
+                <FaHeart className="text-red-400 text-3xl animate-pulse" />
+                <h3 className="text-3xl font-bold text-white">Why Choose FunPortal?</h3>
+                <FaMagic className="text-yellow-400 text-3xl" />
+              </motion.div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[
+                  { icon: '🎨', title: 'Creative Freedom', desc: 'Unleash your imagination with powerful creative tools', color: 'from-blue-500/30 to-purple-500/30' },
+                  { icon: '🧠', title: 'Learn & Play', desc: 'Educational experiences disguised as pure fun', color: 'from-purple-500/30 to-pink-500/30' },
+                  { icon: '🌟', title: 'Endless Updates', desc: 'New worlds and features added regularly', color: 'from-pink-500/30 to-orange-500/30' },
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    whileHover={{ scale: 1.05 }}
+                    className={`p-6 rounded-2xl bg-gradient-to-br ${item.color} backdrop-blur-lg border border-white/10`}
+                  >
+                    <motion.div
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="text-4xl mb-4"
+                    >
+                      {item.icon}
+                    </motion.div>
+                    <h4 className="font-bold text-white text-xl mb-3">{item.title}</h4>
+                    <p className="text-gray-300">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-3">
-              {quickActions.map((action, index) => (
-                <motion.button
-                  key={action.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-3 rounded-xl bg-gradient-to-br ${action.color} text-white shadow-lg hover:shadow-xl`}
-                >
-                  <action.icon className="text-lg mb-1" />
-                  <div className="text-xs font-medium">{action.label}</div>
-                  <div className="text-xs opacity-90">+{action.points} pts</div>
-                </motion.button>
-              ))}
             </div>
           </div>
         </motion.div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Featured & Leaderboard */}
-          <div className="lg:col-span-2">
-            {/* Featured Modules */}
-            <motion.div 
-              className="mb-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  <FaStar className="text-yellow-500" />
-                  Featured Experiences
-                </h2>
-                <span className="text-sm text-gray-500">Most popular this week</span>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {modules.filter(m => m.featured).map((module, index) => (
-                  <motion.div
-                    key={module.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                    whileHover={{ scale: 1.02, y: -5 }}
-                  >
-                    <Link to={module.path}>
-                      <div className={`${module.gradient} rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden group cursor-pointer`}>
-                        {module.comingSoon && (
-                          <div className="absolute top-3 right-3 px-3 py-1 bg-black/30 backdrop-blur-sm rounded-full text-xs">
-                            Coming Soon
-                          </div>
-                        )}
-                        
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="text-5xl">{module.emoji}</div>
-                          <module.icon className="text-2xl opacity-80" />
-                        </div>
-                        
-                        <h3 className="text-2xl font-bold mb-2">{module.title}</h3>
-                        <p className="opacity-90 mb-4">{module.description}</p>
-                        
-                        <div className="flex items-center justify-between mt-6">
-                          <div className="flex items-center gap-4 text-sm opacity-80">
-                            <span className="flex items-center gap-1">
-                              <FaUsers /> {module.stats.users.toLocaleString()}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <FaStar /> {module.stats.rating}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm">Explore</span>
-                            <motion.div
-                              animate={{ x: [0, 5, 0] }}
-                              transition={{ repeat: Infinity, duration: 1.5 }}
-                            >
-                              →
-                            </motion.div>
-                          </div>
-                        </div>
-                        
-                        {/* Hover effect */}
-                        <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* All Modules Grid */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-                <FaGamepad className="text-green-500" />
-                All Games & Tools
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <AnimatePresence>
-                  {modules.map((module, index) => (
-                    <motion.div
-                      key={module.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileHover={{ scale: 1.05, rotate: 1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Link to={module.path}>
-                        <div className={`bg-gradient-to-br ${module.color} rounded-2xl p-5 shadow-xl text-white cursor-pointer relative overflow-hidden group h-full`}>
-                          {module.comingSoon && (
-                            <div className="absolute top-2 right-2 px-2 py-1 bg-black/40 rounded-full text-xs backdrop-blur-sm">
-                              Soon
-                            </div>
-                          )}
-                          
-                          <div className="text-4xl mb-3">{module.emoji}</div>
-                          <h3 className="text-xl font-bold mb-1">{module.title}</h3>
-                          <p className="text-sm opacity-90 mb-4">{module.description}</p>
-                          
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="text-xs opacity-75">
-                              {module.stats.users > 0 ? (
-                                <>
-                                  {module.stats.users.toLocaleString()} users • ⭐{module.stats.rating}
-                                </>
-                              ) : (
-                                'Coming Soon'
-                              )}
-                            </div>
-                            <motion.div
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              animate={{ x: [0, 3, 0] }}
-                              transition={{ repeat: Infinity, duration: 1 }}
-                            >
-                              →
-                            </motion.div>
-                          </div>
-                          
-                          {/* Glow effect on hover */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right Column - Sidebar */}
-          <div className="space-y-8">
-            {/* Leaderboard */}
-            <motion.div 
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  <FaTrophy className="text-yellow-500" />
-                  Top Players
-                </h3>
-                <span className="text-sm text-gray-500">This Week</span>
-              </div>
-              
-              <div className="space-y-3">
-                {topUsers.map((user, index) => (
-                  <motion.div
-                    key={user.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.05 }}
-                    whileHover={{ x: 5 }}
-                    className={`flex items-center gap-3 p-3 rounded-xl ${
-                      index === 0 
-                        ? 'bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20'
-                        : 'bg-gray-50 dark:bg-gray-700/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        index === 0 ? 'bg-yellow-500' :
-                        index === 1 ? 'bg-gray-400' :
-                        index === 2 ? 'bg-amber-700' : 'bg-gray-600'
-                      }`}>
-                        <span className="text-white font-bold">{user.rank}</span>
-                      </div>
-                      <div className="text-2xl">{user.avatar}</div>
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-sm text-gray-500">{user.points.toLocaleString()} pts</div>
-                    </div>
-                    
-                    {index < 3 && (
-                      <div className="text-lg">
-                        {index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-              
-              <button className="w-full mt-4 p-3 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 hover:opacity-90 transition-opacity text-sm font-medium">
-                View Full Leaderboard
-              </button>
-            </motion.div>
-
-            {/* Recent Activity */}
-            <motion.div 
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h3 className="text-xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-                <FaChartLine className="text-blue-500" />
-                Your Activity
-              </h3>
-              
-              <div className="space-y-4">
-                {recentActivity.map((activity, index) => (
-                  <motion.div
-                    key={activity.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + index * 0.05 }}
-                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50/50 dark:bg-gray-700/30"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                        <span className="text-lg">
-                          {activity.type === 'meme' && '🎭'}
-                          {activity.type === 'chat' && '😄'}
-                          {activity.type === 'music' && '🎵'}
-                          {activity.type === 'puzzle' && '🧩'}
-                          {activity.type === 'fun' && '🎲'}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="font-medium">{activity.action} <span className="font-bold">{activity.title}</span></div>
-                        <div className="text-xs text-gray-500">{activity.time}</div>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold text-green-500">+{activity.points}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Featured Content */}
-            <motion.div 
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <h3 className="text-xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-                <FaFire className="text-orange-500" />
-                Trending Now
-              </h3>
-              
-              <div className="space-y-4">
-                {featuredContent.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    whileHover={{ scale: 1.02 }}
-                    className="p-4 rounded-xl bg-gradient-to-r from-gray-50 to-white dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="text-3xl">{item.emoji}</div>
-                      <div>
-                        <div className="font-bold">{item.title}</div>
-                        <div className="text-sm text-gray-500">{item.views.toLocaleString()} views</div>
-                      </div>
-                    </div>
-                    <button className="w-full mt-2 px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90">
-                      Try Now
-                    </button>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Bottom Stats & Info */}
-        <motion.div 
-          className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+        {/* Call to Action with Particles */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-4xl mb-3">🚀</div>
-              <h4 className="font-bold text-lg mb-2">Lightning Fast</h4>
-              <p className="text-gray-600 dark:text-gray-300">
-                Optimized for instant loading and smooth animations
+          <motion.div
+            animate={{ 
+              scale: [1, 1.02, 1],
+              y: [0, -5, 0]
+            }}
+            transition={{ 
+              duration: 3,
+              repeat: Infinity,
+            }}
+            className="inline-block p-8 rounded-3xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-white/10 mb-8"
+          >
+            <div className="flex items-center gap-6 mb-4">
+              <FaUsers className="text-cyan-400 text-3xl" />
+              <p className="text-xl text-white font-semibold">
+                Join our community of creators and explorers
               </p>
+              <FaGamepad className="text-purple-400 text-3xl" />
             </div>
-            <div className="text-center">
-              <div className="text-4xl mb-3">🎯</div>
-              <h4 className="font-bold text-lg mb-2">Always Fresh</h4>
-              <p className="text-gray-600 dark:text-gray-300">
-                New content and features added regularly
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl mb-3">🔒</div>
-              <h4 className="font-bold text-lg mb-2">Privacy First</h4>
-              <p className="text-gray-600 dark:text-gray-300">
-                Your data stays on your device, always secure
-              </p>
-            </div>
-          </div>
-          
-          <div className="mt-8 text-center">
-            <div className="inline-flex items-center gap-4 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10">
-              <FaHeart className="text-pink-500 animate-pulse" />
-              <span className="text-gray-600 dark:text-gray-300">
-                Made with ❤️ for fun and learning
-              </span>
-              <FaBolt className="text-yellow-500" />
-            </div>
-            <p className="mt-4 text-sm text-gray-500">
-              Built with React • Tailwind CSS • Framer Motion • Vite
+            <p className="text-gray-400 text-lg">
+              Start your journey today - no sign up required!
             </p>
-          </div>
+          </motion.div>
+          
+          <motion.p
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-gray-500 flex items-center justify-center gap-3"
+          >
+            <span>Made with ❤️</span>
+            <span className="w-1 h-1 bg-gray-500 rounded-full" />
+            <span>For creative minds everywhere</span>
+            <span className="w-1 h-1 bg-gray-500 rounded-full" />
+            <span>{new Date().getFullYear()}</span>
+          </motion.p>
         </motion.div>
       </div>
 
-      {/* Floating Action Button */}
+      {/* Enhanced Floating Action Button */}
       <motion.button
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1 }}
-        whileHover={{ scale: 1.1, rotate: 360 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-2xl flex items-center justify-center text-2xl z-50"
+        transition={{ delay: 1.5 }}
+        whileHover={{ 
+          scale: 1.2,
+          rotate: 360,
+          transition: { duration: 0.5 }
+        }}
+        whileTap={{ scale: 0.8 }}
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-2xl flex items-center justify-center text-2xl z-50 group"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       >
-        ↑
+        <motion.span
+          animate={{ y: [0, -3, 0] }}
+          transition={{ duration: 1, repeat: Infinity }}
+        >
+          ↑
+        </motion.span>
+        <div className="absolute inset-0 rounded-2xl border-2 border-cyan-300/50 blur-sm group-hover:blur-md transition-all duration-300" />
       </motion.button>
+
+      {/* Audio Visualizer (Placeholder) */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+        className="fixed bottom-8 left-8 z-50"
+      >
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-black/50 backdrop-blur-lg border border-white/10">
+          <FaMusic className="text-purple-400" />
+          <div className="flex items-center gap-1">
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-1 bg-gradient-to-t from-purple-400 to-pink-400 rounded-full"
+                animate={{ height: [5, 20, 5] }}
+                transition={{ duration: 0.5 + Math.random() * 0.5, repeat: Infinity, delay: i * 0.1 }}
+                style={{ height: '10px' }}
+              />
+            ))}
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };
