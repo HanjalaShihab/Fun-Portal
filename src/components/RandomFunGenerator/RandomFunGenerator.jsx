@@ -1,7 +1,7 @@
 // src/components/RandomFunGenerator/RandomFunGenerator.jsx
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   FaRandom, FaHeart, FaShareAlt, FaRedo, FaFire,
   FaStar, FaTrophy, FaSmile, FaComments, FaGamepad,
   FaCrown, FaAward, FaLightbulb, FaMagic
@@ -43,10 +43,10 @@ const RandomFunGenerator = () => {
   useEffect(() => {
     const savedPoints = localStorage.getItem('funPoints');
     const savedFavorites = localStorage.getItem('funFavorites');
-    
+
     if (savedPoints) setPoints(parseInt(savedPoints));
     if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
-    
+
     fetchContent('joke'); // Initial content
   }, []);
 
@@ -69,23 +69,33 @@ const RandomFunGenerator = () => {
   const fetchContent = async (type = currentType) => {
     setLoading(true);
     setAnimating(true);
-    
+
     // Hide old content with animation
     await new Promise(resolve => setTimeout(resolve, 200));
-    
+
     try {
       let newContent;
-      
+
       // Switch based on the type parameter
       const contentType = type || currentType;
-      
-      switch(contentType) {
+
+      switch (contentType) {
         case 'joke':
           const jokes = [
             { setup: "Why don't scientists trust atoms?", punchline: "Because they make up everything!" },
             { setup: "What do you call a fake noodle?", punchline: "An impasta!" },
             { setup: "Why did the scarecrow win an award?", punchline: "He was outstanding in his field!" },
             { setup: "What do you call a bear with no teeth?", punchline: "A gummy bear!" },
+            { setup: "Why don't eggs tell jokes?", punchline: "Because they might crack up!" },
+            { setup: "What do you call a sleeping bull?", punchline: "A bulldozer!" },
+            { setup: "Why did the bicycle fall over?", punchline: "Because it was two-tired!" },
+            { setup: "What do you call a fish with no eyes?", punchline: "Fsh!" },
+            { setup: "Why did the coffee file a police report?", punchline: "It got mugged!" },
+            { setup: "What do you call a belt made of watches?", punchline: "A waist of time!" },
+            { setup: "Why can't your nose be 12 inches long?", punchline: "Because then it would be a foot!" },
+            { setup: "What's orange and sounds like a parrot?", punchline: "A carrot!" },
+            { setup: "Why did the golfer bring two pairs of pants?", punchline: "In case he got a hole in one!" },
+            { setup: "What do you call a factory that makes okay products?", punchline: "A satisfactory!" },
           ];
           const joke = jokes[Math.floor(Math.random() * jokes.length)];
           newContent = {
@@ -103,6 +113,16 @@ const RandomFunGenerator = () => {
             { question: "How many hearts does an octopus have?", answer: '3' },
             { question: "What planet has the most moons?", answer: 'Saturn' },
             { question: "What's the smallest country in the world?", answer: 'Vatican City' },
+            { question: "What is the rarest blood type in humans?", answer: "AB Negative" },
+            { question: "What year was the first iPhone released?", answer: "2007" },
+            { question: "How many bones are in the human body?", answer: "206" },
+            { question: "What is the only continent without reptiles or snakes?", answer: "Antarctica" },
+            { question: "What is the largest organ in the human body?", answer: "Skin" },
+            { question: "What is the only letter that doesn't appear in any US state name?", answer: "Q" },
+            { question: "What planet is known as the 'Red Planet'?", answer: "Mars" },
+            { question: "How many sides does a stop sign have?", answer: "8" },
+            { question: "What is the longest river in the world?", answer: "Nile River" },
+            { question: "What is the smallest country in the world?", answer: "Vatican City" },
           ];
           const trivia = triviaList[Math.floor(Math.random() * triviaList.length)];
           newContent = {
@@ -120,6 +140,16 @@ const RandomFunGenerator = () => {
             { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
             { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
             { text: "Be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+            { text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+            { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "What we think, we become.", author: "Buddha" },
+            { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
+            { text: "Success is not final, failure is not fatal.", author: "Winston Churchill" },
+            { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" },
           ];
           const quote = quotes[Math.floor(Math.random() * quotes.length)];
           newContent = {
@@ -137,6 +167,16 @@ const RandomFunGenerator = () => {
             { question: "What has keys but can't open locks?", answer: "A piano" },
             { question: "The more you take, the more you leave behind. What am I?", answer: "Footsteps" },
             { question: "What has a heart that doesn't beat?", answer: "An artichoke" },
+            { question: "What has cities, but no houses; forests, but no trees; and water, but no fish?", answer: "A map" },
+            { question: "What gets wet while drying?", answer: "A towel" },
+            { question: "What has a head, a tail, is brown, and has no legs?", answer: "A penny" },
+            { question: "What comes once in a minute, twice in a moment, but never in a thousand years?", answer: "The letter 'M'" },
+            { question: "What has hands but cannot clap?", answer: "A clock" },
+            { question: "What can travel around the world while staying in a corner?", answer: "A stamp" },
+            { question: "What has a neck but no head?", answer: "A bottle" },
+            { question: "What gets bigger when more is taken away?", answer: "A hole" },
+            { question: "What is full of holes but still holds water?", answer: "A sponge" },
+            { question: "What has words, but never speaks?", answer: "A book" },
           ];
           const riddle = riddles[Math.floor(Math.random() * riddles.length)];
           newContent = {
@@ -154,6 +194,16 @@ const RandomFunGenerator = () => {
             "Octopuses have three hearts. Two pump blood to the gills, one to the rest of the body.",
             "Bananas are berries, but strawberries aren't.",
             "A day on Venus is longer than a year on Venus.",
+            "A group of flamingos is called a 'flamboyance'.",
+            "The shortest war in history lasted only 38 minutes between Britain and Zanzibar.",
+            "There are more possible iterations of a game of chess than there are atoms in the known universe.",
+            "A day on Mercury is longer than a year on Mercury.",
+            "The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion.",
+            "Humans share 50% of their DNA with bananas.",
+            "The Great Wall of China is not visible from space with the naked eye.",
+            "The first computer virus was created in 1983.",
+            "A single cloud can weigh more than 1 million pounds.",
+            "Octopuses have blue blood.",
           ];
           newContent = {
             type: 'fact',
@@ -169,6 +219,16 @@ const RandomFunGenerator = () => {
             "Compliment the next person you talk to",
             "Learn 3 facts about a random country",
             "Try drawing something with your non-dominant hand",
+            "Learn to say 'hello' in 3 different languages",
+            "Do 5 minutes of stretching",
+            "Write down 3 things you're grateful for today",
+            "Take a photo of something beautiful around you",
+            "Try balancing on one foot for 30 seconds",
+            "Learn a simple magic trick",
+            "Draw your favorite animal in under 2 minutes",
+            "Try writing a short haiku poem",
+            "Do 10 push-ups or squats",
+            "Call or text a friend you haven't spoken to in a while",
           ];
           newContent = {
             type: 'activity',
@@ -184,6 +244,16 @@ const RandomFunGenerator = () => {
             "Do you have a map? I keep getting lost in your eyes.",
             "Is your name Google? Because you have everything I've been searching for.",
             "Are you made of copper and tellurium? Because you're Cu-Te.",
+            "Are you a time traveler? Because I see you in my future.",
+            "If you were a vegetable, you'd be a cute-cumber.",
+            "Do you believe in love at first sight, or should I walk by again?",
+            "Is your dad a boxer? Because you're a knockout!",
+            "Are you a camera? Because every time I look at you, I smile.",
+            "Do you have a name, or can I call you mine?",
+            "If beauty were time, you'd be an eternity.",
+            "Are you French? Because Eiffel for you.",
+            "Do you like Star Wars? Because Yoda one for me.",
+            "If you were words on a page, you'd be fine print.",
           ];
           newContent = {
             type: 'pickupline',
@@ -199,6 +269,16 @@ const RandomFunGenerator = () => {
             "Would you rather always be 10 minutes late or 20 minutes early?",
             "Would you rather have unlimited sushi for life or unlimited tacos?",
             "Would you rather be able to talk to animals or speak all languages?",
+            "Would you rather be able to control fire or water?",
+            "Would you rather be able to speak all languages or be a master of every musical instrument?",
+            "Would you rather always have to sing instead of speak or dance instead of walk?",
+            "Would you rather lose all your memories or never be able to make new ones?",
+            "Would you rather have super strength or super intelligence?",
+            "Would you rather be able to talk to animals or speak every human language?",
+            "Would you rather be incredibly funny or incredibly smart?",
+            "Would you rather travel to the past or to the future?",
+            "Would you rather be able to breathe underwater or fly?",
+            "Would you rather have a rewind button or a pause button on your life?",
           ];
           newContent = {
             type: 'wouldyourather',
@@ -214,6 +294,16 @@ const RandomFunGenerator = () => {
             "Dare: Do your best impression of a celebrity.",
             "Truth: What's your biggest fear?",
             "Dare: Text your crush right now.",
+            "Truth: What's the most embarrassing song you have on your playlist?",
+            "Dare: Do your best celebrity impression for 30 seconds.",
+            "Truth: What's your biggest guilty pleasure?",
+            "Dare: Try to lick your elbow.",
+            "Truth: What's the most childish thing you still do?",
+            "Dare: Let someone draw on your face with a washable marker.",
+            "Truth: What's the worst lie you've ever told?",
+            "Dare: Sing a song with your mouth full of water.",
+            "Truth: What's something you're secretly proud of?",
+            "Dare: Do 10 push-ups right now.",
           ];
           newContent = {
             type: 'truthordare',
@@ -222,7 +312,7 @@ const RandomFunGenerator = () => {
             color: 'amber',
           };
           break;
-          
+
         default:
           // Fallback to joke
           const defaultJoke = { setup: "Why was the math book sad?", punchline: "Because it had too many problems!" };
@@ -238,7 +328,7 @@ const RandomFunGenerator = () => {
       setContent(newContent);
       addPoints(10);
       toast.success(`New ${contentType}! +10 points`);
-      
+
     } catch (error) {
       console.error('Error fetching content:', error);
       toast.error('Failed to load content');
@@ -267,19 +357,19 @@ const RandomFunGenerator = () => {
 
   const toggleFavorite = () => {
     if (!content) return;
-    
-    const isFavorited = favorites.some(fav => 
+
+    const isFavorited = favorites.some(fav =>
       fav.content === content.content && fav.type === content.type
     );
-    
+
     if (isFavorited) {
-      setFavorites(favorites.filter(fav => 
+      setFavorites(favorites.filter(fav =>
         !(fav.content === content.content && fav.type === content.type)
       ));
       toast('Removed from favorites');
     } else {
-      setFavorites([...favorites, { 
-        ...content, 
+      setFavorites([...favorites, {
+        ...content,
         timestamp: new Date(),
         id: Date.now()
       }]);
@@ -303,7 +393,7 @@ const RandomFunGenerator = () => {
     }
   };
 
-  const isFavorited = content && favorites.some(fav => 
+  const isFavorited = content && favorites.some(fav =>
     fav.content === content.content && fav.type === content.type
   );
 
@@ -347,8 +437,8 @@ const RandomFunGenerator = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 p-4 md:p-8">
-      <Toaster 
-        position="top-right" 
+      <Toaster
+        position="top-right"
         toastOptions={{
           style: {
             background: 'rgba(30, 41, 59, 0.9)',
@@ -359,7 +449,7 @@ const RandomFunGenerator = () => {
         }}
       />
       {showConfetti && <Confetti />}
-      
+
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(15)].map((_, i) => (
@@ -395,11 +485,11 @@ const RandomFunGenerator = () => {
           className="text-center mb-12"
         >
           <motion.div
-            animate={{ 
+            animate={{
               scale: [1, 1.05, 1],
               rotate: [0, 5, -5, 0]
             }}
-            transition={{ 
+            transition={{
               duration: 4,
               repeat: Infinity,
               repeatType: "reverse"
@@ -408,20 +498,20 @@ const RandomFunGenerator = () => {
           >
             🎭
           </motion.div>
-          
+
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Random Fun Factory
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Click any category below to get specific content! Change mood for different recommendations.
           </p>
 
           {/* Stats Bar */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05 }}
               className="px-6 py-3 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-sm border border-purple-500/30"
             >
@@ -431,8 +521,8 @@ const RandomFunGenerator = () => {
                 <span className="text-gray-300">points</span>
               </div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               whileHover={{ scale: 1.05 }}
               className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600/30 to-cyan-600/30 backdrop-blur-sm border border-blue-500/30"
             >
@@ -441,8 +531,8 @@ const RandomFunGenerator = () => {
                 <span className="font-bold text-white">Level {userLevel}</span>
               </div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               whileHover={{ scale: 1.05 }}
               className="px-6 py-3 rounded-full bg-gradient-to-r from-red-600/30 to-orange-600/30 backdrop-blur-sm border border-red-500/30"
             >
@@ -461,11 +551,10 @@ const RandomFunGenerator = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleMoodChange(m.id)}
-                className={`px-5 py-2 rounded-full flex items-center gap-2 transition-all ${
-                  mood === m.id
-                    ? `bg-gradient-to-r ${m.color} text-white shadow-lg scale-105`
-                    : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                }`}
+                className={`px-5 py-2 rounded-full flex items-center gap-2 transition-all ${mood === m.id
+                  ? `bg-gradient-to-r ${m.color} text-white shadow-lg scale-105`
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  }`}
               >
                 <span className="text-2xl">{m.emoji}</span>
                 <span className="capitalize font-medium">{m.id}</span>
@@ -477,7 +566,7 @@ const RandomFunGenerator = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Panel - Categories */}
           <div className="lg:col-span-1">
-            <motion.div 
+            <motion.div
               className="rounded-2xl p-6 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50"
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -487,7 +576,7 @@ const RandomFunGenerator = () => {
                 <FaRandom className="text-purple-400" />
                 <span>Fun Categories</span>
               </h2>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 {contentTypes.map((type) => (
                   <motion.button
@@ -495,11 +584,10 @@ const RandomFunGenerator = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleCategoryClick(type.id)}
-                    className={`p-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all ${
-                      currentType === type.id
-                        ? `bg-gradient-to-br ${type.color} shadow-lg scale-105 ring-2 ring-white/50`
-                        : 'bg-gray-800/50 hover:bg-gray-700/50'
-                    }`}
+                    className={`p-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all ${currentType === type.id
+                      ? `bg-gradient-to-br ${type.color} shadow-lg scale-105 ring-2 ring-white/50`
+                      : 'bg-gray-800/50 hover:bg-gray-700/50'
+                      }`}
                   >
                     <div className="text-4xl">{type.emoji}</div>
                     <div className="text-sm font-medium text-center text-white">
@@ -517,7 +605,7 @@ const RandomFunGenerator = () => {
               </div>
 
               {/* Current Category Info */}
-              <motion.div 
+              <motion.div
                 className="mt-8 p-4 rounded-xl bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/20"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -547,7 +635,7 @@ const RandomFunGenerator = () => {
 
           {/* Center Panel - Content Display */}
           <div className="lg:col-span-2">
-            <motion.div 
+            <motion.div
               className="rounded-2xl overflow-hidden h-full"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -558,7 +646,7 @@ const RandomFunGenerator = () => {
                 {/* Content Header */}
                 <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center gap-3">
-                    <motion.div 
+                    <motion.div
                       animate={animating ? { rotate: 360 } : { rotate: 0 }}
                       transition={{ duration: 0.5 }}
                       className="text-4xl"
@@ -574,22 +662,21 @@ const RandomFunGenerator = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={toggleFavorite}
                       disabled={!content}
-                      className={`p-3 rounded-full flex items-center gap-2 ${
-                        isFavorited
-                          ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white'
-                          : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                      }`}
+                      className={`p-3 rounded-full flex items-center gap-2 ${isFavorited
+                        ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white'
+                        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
+                        }`}
                     >
                       <FaHeart className={isFavorited ? 'fill-current' : ''} />
                     </motion.button>
-                    
+
                     <motion.button
                       whileHover={{ scale: 1.1, rotate: 180 }}
                       whileTap={{ scale: 0.9 }}
@@ -639,7 +726,7 @@ const RandomFunGenerator = () => {
                             <div className="text-3xl font-medium text-white">
                               "{content.content}"
                             </div>
-                            <motion.div 
+                            <motion.div
                               className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent"
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -752,7 +839,7 @@ const RandomFunGenerator = () => {
                     >
                       📋 Copy
                     </motion.button>
-                    
+
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -760,9 +847,9 @@ const RandomFunGenerator = () => {
                       onClick={() => {
                         if (content?.content) {
                           const shareText = `Check out this ${currentType} from Fun Portal: "${content.content}"`;
-                          navigator.share?.({ 
-                            title: 'Fun Portal', 
-                            text: shareText 
+                          navigator.share?.({
+                            title: 'Fun Portal',
+                            text: shareText
                           }) || navigator.clipboard.writeText(shareText);
                           toast.success('Shared!');
                         }
@@ -771,7 +858,7 @@ const RandomFunGenerator = () => {
                       <FaShareAlt />
                     </motion.button>
                   </div>
-                  
+
                   <div className="text-sm text-gray-400">
                     Category: <span className="text-white capitalize">{currentType}</span>
                   </div>
@@ -782,7 +869,7 @@ const RandomFunGenerator = () => {
         </div>
 
         {/* Tips Section */}
-        <motion.div 
+        <motion.div
           className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -797,7 +884,7 @@ const RandomFunGenerator = () => {
               Click any category to get content of that type. Use refresh to get new items.
             </p>
           </div>
-          
+
           <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/20 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="text-3xl">💖</div>
@@ -807,7 +894,7 @@ const RandomFunGenerator = () => {
               Click the heart to save favorites. Earn extra points for saving!
             </p>
           </div>
-          
+
           <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-500/20 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="text-3xl">😊</div>
