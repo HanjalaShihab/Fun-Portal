@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa';
 
 const PhysicsSandbox = () => {
-  const canvasRef = useRef(null);
+  const canvasContainerRef = useRef(null);
   const engineRef = useRef(null);
   const renderRef = useRef(null);
   const runnerRef = useRef(null);
@@ -28,29 +28,31 @@ const PhysicsSandbox = () => {
   const [mouseConstraint, setMouseConstraint] = useState(null);
   const [objectCount, setObjectCount] = useState(0);
   const [simulationSpeed, setSimulationSpeed] = useState(1);
-  const [showVelocity, setShowVelocity] = useState(false);
 
   // Initialize physics engine
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasContainerRef.current) return;
 
-    // Create engine with better settings
+    const containerWidth = canvasContainerRef.current.clientWidth;
+    const containerHeight = 600;
+
+    // Create engine
     const engine = Matter.Engine.create({
       enableSleeping: true,
       gravity: { x: wind, y: gravity, scale: 0.001 }
     });
     engineRef.current = engine;
 
-    // Create renderer with better visuals
+    // Create renderer - use a fixed canvas inside our container
     const render = Matter.Render.create({
-      element: canvasRef.current,
+      element: canvasContainerRef.current,
       engine: engine,
       options: {
-        width: canvasRef.current.clientWidth,
-        height: 600,
+        width: containerWidth,
+        height: containerHeight,
         wireframes: false,
         background: 'transparent',
-        showSleeping: true,
+        showSleeping: false,
         showCollisions: false,
         showVelocity: false,
         showAngleIndicator: false,
@@ -59,7 +61,7 @@ const PhysicsSandbox = () => {
     });
     renderRef.current = render;
 
-    // Create world bounds with better aesthetics
+    // Create world bounds
     const boundsOptions = {
       isStatic: true,
       render: {
@@ -70,41 +72,37 @@ const PhysicsSandbox = () => {
     };
 
     const bounds = [
-      // Bottom floor
       Matter.Bodies.rectangle(
-        render.options.width / 2,
-        render.options.height + 25,
-        render.options.width,
+        containerWidth / 2,
+        containerHeight + 25,
+        containerWidth,
         50,
         boundsOptions
       ),
-      // Left wall
       Matter.Bodies.rectangle(
         -25,
-        render.options.height / 2,
+        containerHeight / 2,
         50,
-        render.options.height,
+        containerHeight,
         boundsOptions
       ),
-      // Right wall
       Matter.Bodies.rectangle(
-        render.options.width + 25,
-        render.options.height / 2,
+        containerWidth + 25,
+        containerHeight / 2,
         50,
-        render.options.height,
+        containerHeight,
         boundsOptions
       ),
-      // Top (optional)
       Matter.Bodies.rectangle(
-        render.options.width / 2,
+        containerWidth / 2,
         -25,
-        render.options.width,
+        containerWidth,
         50,
         boundsOptions
       )
     ];
 
-    // Add mouse control
+    // Add mouse control - THIS IS KEY FOR CLICK EVENTS
     const mouse = Matter.Mouse.create(render.canvas);
     const mouseConstraint = Matter.MouseConstraint.create(engine, {
       mouse: mouse,
@@ -119,24 +117,22 @@ const PhysicsSandbox = () => {
     // Add all to world
     Matter.World.add(engine.world, [...bounds, mouseConstraint]);
 
-    // Add event listeners for mouse
-    Matter.Events.on(mouseConstraint, 'mousedown', (event) => {
+    // Listen for click events on the Matter.js canvas
+    Matter.Events.on(mouseConstraint, 'startdrag', () => {
       setIsDragging(true);
-      setSelectedBody(event.body);
     });
 
-    Matter.Events.on(mouseConstraint, 'mouseup', () => {
+    Matter.Events.on(mouseConstraint, 'enddrag', () => {
       setIsDragging(false);
-      setSelectedBody(null);
     });
 
     // Add some interesting starting objects
-    addInteractiveObjects();
+    addInteractiveObjects(containerWidth, containerHeight);
 
     // Run the renderer
     Matter.Render.run(render);
 
-    // Create runner with speed control
+    // Create runner
     const runner = Matter.Runner.create();
     runnerRef.current = runner;
     runner.delta = 1000 / 60 / simulationSpeed;
@@ -144,14 +140,25 @@ const PhysicsSandbox = () => {
 
     // Handle resizing
     const handleResize = () => {
-      if (render && canvasRef.current) {
-        render.options.width = canvasRef.current.clientWidth;
-        render.canvas.width = canvasRef.current.clientWidth;
+      if (render && canvasContainerRef.current) {
+        const newWidth = canvasContainerRef.current.clientWidth;
+        render.options.width = newWidth;
+        render.canvas.width = newWidth;
+        
+        // Update bounds positions
+        const bounds = Matter.Composite.allBodies(engine.world).filter(body => body.isStatic);
+        if (bounds.length >= 4) {
+          Matter.Body.setPosition(bounds[0], { x: newWidth / 2, y: containerHeight + 25 });
+          Matter.Body.setPosition(bounds[2], { x: newWidth + 25, y: containerHeight / 2 });
+          Matter.Body.setPosition(bounds[3], { x: newWidth / 2, y: -25 });
+        }
+        
         Matter.Render.setPixelRatio(render, window.devicePixelRatio);
       }
     };
 
     window.addEventListener('resize', handleResize);
+    handleResize();
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -159,7 +166,9 @@ const PhysicsSandbox = () => {
       Matter.Runner.stop(runner);
       Matter.World.clear(engine.world, false);
       Matter.Engine.clear(engine);
-      render.canvas.remove();
+      if (render.canvas && render.canvas.parentNode) {
+        render.canvas.parentNode.removeChild(render.canvas);
+      }
     };
   }, []);
 
@@ -179,7 +188,7 @@ const PhysicsSandbox = () => {
     }
   }, [simulationSpeed]);
 
-  const addInteractiveObjects = () => {
+  const addInteractiveObjects = (width = 800, height = 600) => {
     const shapes = ['box', 'circle', 'star', 'triangle', 'polygon'];
     const colors = [
       '#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981',
@@ -188,7 +197,7 @@ const PhysicsSandbox = () => {
 
     for (let i = 0; i < 8; i++) {
       const shape = shapes[Math.floor(Math.random() * shapes.length)];
-      const x = Math.random() * (canvasRef.current?.clientWidth - 150) + 75;
+      const x = Math.random() * (width - 150) + 75;
       const y = Math.random() * 200 + 50;
       const color = colors[Math.floor(Math.random() * colors.length)];
 
@@ -259,21 +268,65 @@ const PhysicsSandbox = () => {
         body = Matter.Bodies.rectangle(x, y, 50, 50, options);
     }
 
-    Matter.World.add(engineRef.current.world, body);
-    setObjectCount(prev => prev + 1);
+    if (body) {
+      Matter.World.add(engineRef.current.world, body);
+      setObjectCount(prev => prev + 1);
+      return body;
+    }
+    return null;
   };
 
-  const handleCanvasClick = (e) => {
-    if (isDragging) return;
+  const handleAddObjectClick = (e) => {
+    if (!canvasContainerRef.current || !renderRef.current || selectedTool === 'explosion') return;
     
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const rect = canvasContainerRef.current.getBoundingClientRect();
+    const canvas = renderRef.current.canvas;
+    
+    // Calculate the actual click position on the Matter.js canvas
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    // Make sure click is within canvas bounds
+    if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
     
     addShape(selectedTool, x, y);
   };
 
+  const handleExplosionClick = (e) => {
+    if (!canvasContainerRef.current || !renderRef.current || !engineRef.current || selectedTool !== 'explosion') return;
+    
+    const rect = canvasContainerRef.current.getBoundingClientRect();
+    const canvas = renderRef.current.canvas;
+    
+    // Calculate the actual click position on the Matter.js canvas
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    // Make sure click is within canvas bounds
+    if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
+    
+    // Create explosion force
+    const bodies = Matter.Composite.allBodies(engineRef.current.world);
+    bodies.forEach(body => {
+      if (body.isStatic || !body.position) return;
+      
+      const dx = body.position.x - x;
+      const dy = body.position.y - y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance > 0 && distance < 200) {
+        const force = (15 * 1000) / (distance * distance);
+        Matter.Body.applyForce(body, body.position, {
+          x: (dx / distance) * force,
+          y: (dy / distance) * force
+        });
+      }
+    });
+  };
+
   const handlePlayPause = () => {
+    if (!runnerRef.current || !engineRef.current) return;
+    
     if (isPlaying) {
       Matter.Runner.stop(runnerRef.current);
     } else {
@@ -293,35 +346,17 @@ const PhysicsSandbox = () => {
 
   const handleReset = () => {
     handleClearAll();
-    addInteractiveObjects();
+    if (renderRef.current) {
+      addInteractiveObjects(renderRef.current.options.width, renderRef.current.options.height);
+    }
   };
 
-  const addExplosion = (x, y, power = 10) => {
-    if (!engineRef.current) return;
-
-    const bodies = Matter.Composite.allBodies(engineRef.current.world);
-    bodies.forEach(body => {
-      if (body.isStatic) return;
-      
-      const dx = body.position.x - x;
-      const dy = body.position.y - y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance < 200) {
-        const force = (power * 1000) / (distance * distance);
-        Matter.Body.applyForce(body, body.position, {
-          x: (dx / distance) * force,
-          y: (dy / distance) * force
-        });
-      }
-    });
-  };
-
-  const handleExplosionClick = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    addExplosion(x, y, 15);
+  const handleCanvasClick = (e) => {
+    if (selectedTool === 'explosion') {
+      handleExplosionClick(e);
+    } else {
+      handleAddObjectClick(e);
+    }
   };
 
   const tools = [
@@ -609,13 +644,13 @@ const PhysicsSandbox = () => {
                 </div>
               </div>
 
-              {/* Canvas Area */}
+              {/* Canvas Area - IMPORTANT: Direct click handling */}
               <div 
-                ref={canvasRef}
-                onClick={selectedTool === 'explosion' ? handleExplosionClick : handleCanvasClick}
-                className="w-full h-[600px] bg-gradient-to-br from-gray-50/80 to-blue-50/80 dark:from-gray-900/80 dark:to-blue-900/20 relative overflow-hidden cursor-crosshair"
-                style={{ backdropFilter: 'blur(10px)' }}
+                ref={canvasContainerRef}
+                onClick={handleCanvasClick}
+                className="relative w-full h-[600px] bg-gradient-to-br from-gray-50/80 to-blue-50/80 dark:from-gray-900/80 dark:to-blue-900/20 overflow-hidden cursor-crosshair"
               >
+                {/* This is where Matter.js will insert its canvas */}
                 {/* Grid Background */}
                 <div className="absolute inset-0 opacity-20 pointer-events-none"
                   style={{
@@ -781,9 +816,13 @@ const PhysicsSandbox = () => {
             <button
               onClick={() => {
                 const shapes = ['box', 'circle', 'star', 'triangle', 'polygon'];
+                if (!renderRef.current) return;
+                
+                const width = renderRef.current.options.width;
+                const height = renderRef.current.options.height;
                 for (let i = 0; i < 3; i++) {
                   const shape = shapes[Math.floor(Math.random() * shapes.length)];
-                  const x = Math.random() * (canvasRef.current?.clientWidth - 100) + 50;
+                  const x = Math.random() * (width - 100) + 50;
                   const y = Math.random() * 200 + 50;
                   addShape(shape, x, y);
                 }
