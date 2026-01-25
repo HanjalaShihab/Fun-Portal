@@ -30,6 +30,7 @@ const Layout = ({ children }) => {
     { path: '/puzzle-room', label: 'Puzzle Room' },
     { path: '/physics-sandbox', label: 'Physics Sandbox' },
     { path: '/random-fun', label: 'Random Fun' },
+    { path: '/space-explorer', label: 'Space Explorer', icon: FaMagic }, // Added for AI Art Studio
   ];
 
   return (

@@ -16,6 +16,7 @@ const EmojiChat = lazy(() => import('./components/EmojiChat/EmojiChat'));
 const PuzzleRoom = lazy(() => import('./components/PuzzleRoom/PuzzleRoom'));
 const PhysicsSandbox = lazy(() => import('./components/PhysicsSandbox/PhysicsSandbox'));
 const RandomFunGenerator = lazy(() => import('./components/RandomFunGenerator/RandomFunGenerator'));
+const SpaceExplorer = lazy(() => import('./components/SpaceExplorer/SpaceExplorer'));
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/puzzle-room" element={<PuzzleRoom />} />
                 <Route path="/physics-sandbox" element={<PhysicsSandbox />} />
                 <Route path="/random-fun" element={<RandomFunGenerator />} />
+                <Route path="/space-explorer" element={<SpaceExplorer />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
