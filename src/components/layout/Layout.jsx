@@ -26,7 +26,7 @@ const Layout = ({ children }) => {
     { path: '/', label: 'Dashboard', icon: FaHome },
     { path: '/meme-generator', label: 'Meme Generator' },
     { path: '/music-visualizer', label: 'Music Visualizer' },
-    { path: '/emoji-chat', label: 'Emoji Chat' },
+    { path: '/escape-maze', label: 'Escape Maze' },
     { path: '/puzzle-room', label: 'Puzzle Room' },
     { path: '/physics-sandbox', label: 'Physics Sandbox' },
     { path: '/random-fun', label: 'Random Fun' },

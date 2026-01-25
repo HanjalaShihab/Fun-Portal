@@ -12,7 +12,7 @@ import './index.css'; // Changed from ./styles/globals.css
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
 const MemeGenerator = lazy(() => import('./components/MemeGenerator/MemeGenerator'));
 const MusicVisualizer = lazy(() => import('./components/MusicVisualizer/MusicVisualizer'));
-const EmojiChat = lazy(() => import('./components/EmojiChat/EmojiChat'));
+const EscapeMaze = lazy(() => import('./components/EscapeMaze/EscapeMaze'));
 const PuzzleRoom = lazy(() => import('./components/PuzzleRoom/PuzzleRoom'));
 const PhysicsSandbox = lazy(() => import('./components/PhysicsSandbox/PhysicsSandbox'));
 const RandomFunGenerator = lazy(() => import('./components/RandomFunGenerator/RandomFunGenerator'));
@@ -29,7 +29,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/meme-generator" element={<MemeGenerator />} />
                 <Route path="/music-visualizer" element={<MusicVisualizer />} />
-                <Route path="/emoji-chat" element={<EmojiChat />} />
+                <Route path="/escape-maze" element={<EscapeMaze />} />
                 <Route path="/puzzle-room" element={<PuzzleRoom />} />
                 <Route path="/physics-sandbox" element={<PhysicsSandbox />} />
                 <Route path="/random-fun" element={<RandomFunGenerator />} />
