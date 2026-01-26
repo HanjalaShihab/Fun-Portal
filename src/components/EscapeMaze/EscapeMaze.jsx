@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as THREE from 'three';
 
-const EscapeMaze = () => {
+/*const EscapeMaze = () => {
   // Game State
   const [gameStarted, setGameStarted] = useState(false);
   const [currentFloor, setCurrentFloor] = useState(1);
@@ -21,6 +21,7 @@ const EscapeMaze = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
   const [currentRoom, setCurrentRoom] = useState('Entrance Hall');
+  const [isMoving, setIsMoving] = useState(false);
   
   // Refs
   const containerRef = useRef(null);
@@ -30,6 +31,7 @@ const EscapeMaze = () => {
   const cameraRef = useRef(null);
   const animationRef = useRef(null);
   const timeRef = useRef(null);
+  const keysPressed = useRef({});
   
   // House rooms configuration
   const rooms = {
@@ -123,6 +125,11 @@ const EscapeMaze = () => {
       // Update camera based on view mode
       updateCamera();
       
+      // Update movement if keys are pressed
+      if (viewMode === 'first-person' && gameStarted && !gameCompleted) {
+        handleMovement();
+      }
+      
       renderer.render(scene, camera);
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -152,7 +159,7 @@ const EscapeMaze = () => {
         rendererRef.current.dispose();
       }
     };
-  }, [lightsOn, currentFloor, playerPosition]);
+  }, [lightsOn, currentFloor, playerPosition, viewMode, gameStarted, gameCompleted]);
 
   // Update camera position and rotation
   const updateCamera = () => {
@@ -174,6 +181,66 @@ const EscapeMaze = () => {
     } else if (viewMode === 'top-down') {
       cameraRef.current.position.set(0, 30, 0);
       cameraRef.current.rotation.x = -Math.PI / 2;
+      cameraRef.current.rotation.y = 0;
+    }
+  };
+
+  // Handle continuous movement
+  const handleMovement = () => {
+    const speed = 0.1;
+    let newX = playerPosition.x;
+    let newZ = playerPosition.z;
+    let newRotation = playerPosition.rotation;
+    let moved = false;
+
+    // Forward/Backward
+    if (keysPressed.current['w']) {
+      newX += Math.sin(newRotation) * speed;
+      newZ += Math.cos(newRotation) * speed;
+      moved = true;
+    }
+    if (keysPressed.current['s']) {
+      newX -= Math.sin(newRotation) * speed;
+      newZ -= Math.cos(newRotation) * speed;
+      moved = true;
+    }
+    
+    // Strafe left/right
+    if (keysPressed.current['a']) {
+      newX -= Math.cos(newRotation) * speed;
+      newZ += Math.sin(newRotation) * speed;
+      moved = true;
+    }
+    if (keysPressed.current['d']) {
+      newX += Math.cos(newRotation) * speed;
+      newZ -= Math.sin(newRotation) * speed;
+      moved = true;
+    }
+    
+    // Rotation
+    if (keysPressed.current['arrowleft'] || keysPressed.current['q']) {
+      newRotation -= 0.05;
+      moved = true;
+    }
+    if (keysPressed.current['arrowright'] || keysPressed.current['e']) {
+      newRotation += 0.05;
+      moved = true;
+    }
+
+    if (moved) {
+      // Update room based on position
+      updateCurrentRoom(newX, newZ);
+
+      setPlayerPosition({
+        x: newX,
+        y: playerPosition.y,
+        z: newZ,
+        rotation: newRotation
+      });
+      
+      if (!isMoving) setIsMoving(true);
+    } else if (isMoving) {
+      setIsMoving(false);
     }
   };
 
@@ -228,18 +295,20 @@ const EscapeMaze = () => {
       const halfWidth = room.width / 2;
       const halfDepth = room.depth / 2;
 
-      // Front wall
-      const frontWall = new THREE.Mesh(
-        new THREE.BoxGeometry(room.width, wallHeight, wallThickness),
-        materials.wall
-      );
-      frontWall.position.set(
-        room.x,
-        wallHeight / 2 + (floorLevel === 2 ? 4 : 0),
-        room.z - halfDepth
-      );
-      frontWall.castShadow = true;
-      scene.add(frontWall);
+      // Front wall (with opening for door)
+      if (!(room.x === 0 && room.z === 0 && floorLevel === 1)) { // Don't block entrance
+        const frontWall = new THREE.Mesh(
+          new THREE.BoxGeometry(room.width, wallHeight, wallThickness),
+          materials.wall
+        );
+        frontWall.position.set(
+          room.x,
+          wallHeight / 2 + (floorLevel === 2 ? 4 : 0),
+          room.z - halfDepth
+        );
+        frontWall.castShadow = true;
+        scene.add(frontWall);
+      }
 
       // Back wall
       const backWall = new THREE.Mesh(
@@ -346,7 +415,7 @@ const EscapeMaze = () => {
 
   const addClues = (scene, floorLevel) => {
     clues.forEach(clue => {
-      const room = rooms[floorLevel].find(r => clues.find(c => c.id === clue.id && c.room === r.name));
+      const room = rooms[floorLevel].find(r => r.name === clue.room);
       if (!room) return;
 
       const found = foundClues.find(fc => fc.id === clue.id);
@@ -363,9 +432,9 @@ const EscapeMaze = () => {
       });
       const clueMesh = new THREE.Mesh(geometry, material);
       clueMesh.position.set(
-        room.x + (Math.random() - 0.5) * (room.width - 1),
+        room.x + (Math.random() - 0.5) * (room.width / 2),
         yPos + 1,
-        room.z + (Math.random() - 0.5) * (room.depth - 1)
+        room.z + (Math.random() - 0.5) * (room.depth / 2)
       );
       clueMesh.userData = { clueId: clue.id };
       scene.add(clueMesh);
@@ -418,39 +487,14 @@ const EscapeMaze = () => {
   };
 
   // Keyboard Controls
-  const keysRef = useRef({});
-
   useEffect(() => {
     const handleKeyDown = (e) => {
-      keysRef.current[e.key.toLowerCase()] = true;
+      const key = e.key.toLowerCase();
+      keysPressed.current[key] = true;
 
       if (gameStarted && !gameCompleted) {
-        const speed = 0.1;
-        let newX = playerPosition.x;
-        let newZ = playerPosition.z;
-        let newRotation = playerPosition.rotation;
-
-        switch(e.key.toLowerCase()) {
-          case 'w':
-            newX += Math.sin(newRotation) * speed;
-            newZ += Math.cos(newRotation) * speed;
-            break;
-          case 's':
-            newX -= Math.sin(newRotation) * speed;
-            newZ -= Math.cos(newRotation) * speed;
-            break;
-          case 'a':
-            newRotation -= 0.05;
-            break;
-          case 'd':
-            newRotation += 0.05;
-            break;
-          case 'arrowleft':
-            newRotation -= 0.05;
-            break;
-          case 'arrowright':
-            newRotation += 0.05;
-            break;
+        // Single key actions
+        switch(key) {
           case ' ':
             checkForClue();
             break;
@@ -471,32 +515,22 @@ const EscapeMaze = () => {
           case '1':
             setCurrentFloor(1);
             setPlayerPosition(prev => ({ ...prev, y: 1.6 }));
-            initThreeJS();
+            setTimeout(() => initThreeJS(), 50);
             break;
           case '2':
             setCurrentFloor(2);
             setPlayerPosition(prev => ({ ...prev, y: 5.6 }));
-            initThreeJS();
+            setTimeout(() => initThreeJS(), 50);
             break;
           case 'f':
             toggleFullscreen();
             break;
         }
-
-        // Update room based on position
-        updateCurrentRoom(newX, newZ);
-
-        setPlayerPosition({
-          x: newX,
-          y: playerPosition.y,
-          z: newZ,
-          rotation: newRotation
-        });
       }
     };
 
     const handleKeyUp = (e) => {
-      keysRef.current[e.key.toLowerCase()] = false;
+      keysPressed.current[e.key.toLowerCase()] = false;
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -506,7 +540,7 @@ const EscapeMaze = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameStarted, gameCompleted, playerPosition, currentFloor, lightsOn]);
+  }, [gameStarted, gameCompleted, lightsOn]);
 
   const updateCurrentRoom = (x, z) => {
     const currentRooms = rooms[currentFloor];
@@ -649,7 +683,8 @@ const EscapeMaze = () => {
                   <ul className="space-y-2">
                     <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">W</kbd> Move forward</li>
                     <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">S</kbd> Move backward</li>
-                    <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">A/D</kbd> Turn left/right</li>
+                    <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">A/D</kbd> Strafe left/right</li>
+                    <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">Q/E</kbd> Turn left/right</li>
                     <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">Space</kbd> Interact</li>
                     <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">V</kbd> Change view</li>
                     <li><kbd className="px-2 py-1 bg-gray-700 rounded mr-2">F</kbd> Fullscreen</li>
@@ -724,7 +759,7 @@ const EscapeMaze = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Left Panel */}
+
               <div className="space-y-6">
                 <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-800">
                   <h3 className="text-xl font-bold mb-4">📍 Current Location</h3>
@@ -743,6 +778,11 @@ const EscapeMaze = () => {
                         <div className="font-bold capitalize">{viewMode}</div>
                       </div>
                     </div>
+                    {isMoving && (
+                      <div className="text-center p-2 bg-green-500/20 rounded-lg">
+                        <div className="text-sm text-green-400">Moving...</div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -801,7 +841,7 @@ const EscapeMaze = () => {
                 </div>
               </div>
 
-              {/* Main Game Area */}
+
               <div className="lg:col-span-3">
                 <div 
                   ref={containerRef}
@@ -815,7 +855,7 @@ const EscapeMaze = () => {
                 >
                   <div ref={mountRef} className="w-full h-full" />
                   
-                  {/* Game Overlay */}
+               
                   <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm rounded-xl p-4 border border-gray-700">
                     <div className="font-bold">🎮 Controls Active</div>
                     <div className="text-sm text-gray-400">Use WASD to move, Space to interact</div>
@@ -834,7 +874,7 @@ const EscapeMaze = () => {
                   )}
                 </div>
 
-                {/* Stats */}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                   <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-800">
                     <h3 className="text-xl font-bold mb-4">🎯 Current Objectives</h3>
@@ -891,13 +931,13 @@ const EscapeMaze = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-300">Clues/Minute</span>
                         <span className="font-bold">
-                          {((foundClues.length / (600 - timeLeft)) * 60).toFixed(1)}
+                          {((foundClues.length / Math.max(1, 600 - timeLeft)) * 60).toFixed(1)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-300">Rooms Visited</span>
                         <span className="font-bold">
-                          {rooms[currentFloor].filter(r => r.name === currentRoom).length + foundClues.length}
+                          {new Set([...foundClues.map(c => c.room), currentRoom]).size}
                         </span>
                       </div>
                     </div>
@@ -906,13 +946,14 @@ const EscapeMaze = () => {
               </div>
             </div>
 
-            {/* Controls Footer */}
+       
             <div className="mt-6 bg-gray-900/80 backdrop-blur-sm rounded-xl p-4 border border-gray-800">
               <div className="flex flex-wrap justify-center gap-4">
                 {[
                   { key: 'W', label: 'Forward' },
                   { key: 'S', label: 'Backward' },
-                  { key: 'A/D', label: 'Turn' },
+                  { key: 'A/D', label: 'Strafe' },
+                  { key: 'Q/E', label: 'Turn' },
                   { key: 'Space', label: 'Interact' },
                   { key: 'V', label: 'View Mode' },
                   { key: '1/2', label: 'Floor' },
@@ -931,6 +972,14 @@ const EscapeMaze = () => {
       </div>
     </div>
   );
-};
+}; 
+ */
 
+const EscapeMaze = () => {
+  return (
+    <div>
+      <h1>EscapeMaze is under Development</h1>
+    </div>
+  );
+}
 export default EscapeMaze;
